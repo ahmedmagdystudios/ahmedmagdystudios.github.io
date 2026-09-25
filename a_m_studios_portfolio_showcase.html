@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.M Studios | Game Engine & Graphics Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        night: '#060919',
+                        nightDark: '#030510',
+                        nightCard: 'rgba(15, 23, 42, 0.7)',
+                        cyanNeon: '#00d9ff',
+                        magentaNeon: '#ff006e',
+                        purpleAccent: '#7928ca',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'cursive'],
+                        code: ['Fira Code', 'monospace']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 20px rgba(0, 217, 255, 0.4)',
+                        'neon-magenta': '0 0 20px rgba(255, 0, 110, 0.4)',
+                        'neon-purple': '0 0 25px rgba(121, 40, 202, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Glowing & Scanline Effects */
+        .glass-panel {
+            background: rgba(10, 14, 39, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 217, 255, 0.15);
+        }
+        .glass-panel-hover:hover {
+            border-color: rgba(0, 217, 255, 0.5);
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.2);
+        }
+        .text-glow-cyan {
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.7), 0 0 20px rgba(0, 217, 255, 0.4);
+        }
+        .text-glow-magenta {
+            text-shadow: 0 0 10px rgba(255, 0, 110, 0.7), 0 0 20px rgba(255, 0, 110, 0.4);
+        }
+        .scanline {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 217, 255, 0.05) 50%,
+                rgba(0, 217, 255, 0.05)
+            );
+            background-size: 100% 4px;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030510;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 217, 255, 0.3);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00d9ff;
+        }
+    </style>
+</head>
+<body class="bg-night text-slate-100 font-sans selection:bg-cyanNeon selection:text-night relative overflow-x-hidden">
+
+    <!-- Sticky Glass Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-800/80 px-4 md:px-8 py-3 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Sleek Glowing Logo Mark -->
+            <a href="#hero" class="flex items-center gap-3 group">
+                <div class="relative w-10 h-10 flex items-center justify-center bg-slate-900 border border-cyanNeon/50 rounded-lg group-hover:border-cyanNeon transition-all duration-300 shadow-neon-cyan">
+                    <!-- SVG Monogram Logo Mark -->
+                    <svg class="w-7 h-7" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 80 L50 20 L80 80 M32 56 L68 56" stroke="url(#cyan-grad)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M35 80 L35 45 L50 68 L65 45 L65 80" stroke="url(#magenta-grad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="cyan-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00d9ff" />
+                                <stop offset="100%" stop-color="#7928ca" />
+                            </linearGradient>
+                            <linearGradient id="magenta-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ff006e" />
+                                <stop offset="100%" stop-color="#00d9ff" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-display text-2xl tracking-wider text-white group-hover:text-cyanNeon transition-colors leading-none">A.M STUDIOS</span>
+                    <span class="text-[10px] text-cyanNeon tracking-widest font-code">AHMED MAGDY</span>
+                </div>
+            </a>
+
+            <!-- Nav Links -->
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+                <a href="#hero" class="text-slate-300 hover:text-cyanNeon transition-colors">Overview</a>
+                <a href="#runner-showcase" class="text-slate-300 hover:text-cyanNeon transition-colors">First Person Runner</a>
+                <a href="#engine-architecture" class="text-slate-300 hover:text-cyanNeon transition-colors">Engine Tech</a>
+                <a href="#minigame" class="text-slate-300 hover:text-cyanNeon transition-colors">Live Web Demo</a>
+                <a href="#about" class="text-slate-300 hover:text-cyanNeon transition-colors">About</a>
+            </nav>
+
+            <!-- CTA Button -->
+            <div class="flex items-center gap-4">
+                <a href="#minigame" class="px-4 py-2 text-xs font-code font-semibold tracking-wider text-night bg-cyanNeon rounded-md shadow-neon-cyan hover:bg-cyan-300 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad"></i> PLAY DEMO
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <!-- Interactive 3D Wireframe / Particle Mesh Canvas Background -->
+        <canvas id="hero-canvas" class="absolute inset-0 w-full h-full z-0 cursor-crosshair"></canvas>
+        
+        <!-- Gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-night/40 via-night/80 to-night z-10 pointer-events-none"></div>
+
+        <div class="relative z-20 max-w-5xl mx-auto px-4 text-center mt-12">
+            <!-- Tech Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel border border-cyanNeon/30 text-cyanNeon text-xs font-code mb-6 animate-pulse">
+                <span class="w-2 h-2 rounded-full bg-cyanNeon"></span>
+                OpenGL 3.3 Core & C++ Custom Graphics Architecture
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-display tracking-wide text-white mb-4">
+                CRAFTING HIGH-PERFORMANCE <br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyanNeon via-purpleAccent to-magentaNeon text-glow-cyan">3D ENGINE ARCHITECTURE</span>
+            </h1>
+
+            <p class="max-w-2xl mx-auto text-slate-300 text-base md:text-lg mb-8 leading-relaxed font-sans">
+                Portfolio of <strong class="text-cyanNeon font-semibold">Ahmed Magdy</strong>. Highlighting custom C++ engine modules, low-level rendering pipelines, physics gizmos, and the custom-built flagship title <strong class="text-magentaNeon">First Person Runner</strong>.
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="#runner-showcase" class="px-6 py-3 bg-gradient-to-r from-cyanNeon to-blue-600 text-night font-bold rounded-lg shadow-neon-cyan hover:opacity-90 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-cube"></i> Explore Runner Project
+                </a>
+                <a href="#engine-architecture" class="px-6 py-3 glass-panel text-cyanNeon hover:text-white border border-cyanNeon/40 hover:border-cyanNeon font-medium rounded-lg transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-code"></i> Inspect C++ Modules
+                </a>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto text-left">
+                <div class="glass-panel p-4 rounded-xl border-l-2 border-l-cyanNeon">
+                    <div class="text-2xl font-display text-cyanNeon tracking-wider" id="stat-fps">60+ FPS</div>
+                    <div class="text-xs text-slate-400 font-code">Frame Rate Target</div>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border-l-2 border-l-magentaNeon">
+                    <div class="text-2xl font-display text-magentaNeon tracking-wider" id="stat-draws">100% Custom</div>
+                    <div class="text-xs text-slate-400 font-code">C++ Engine Codebase</div>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border-l-2 border-l-purpleAccent">
+                    <div class="text-2xl font-display text-purple-400 tracking-wider" id="stat-latency">&lt; 2.5ms</div>
+                    <div class="text-xs text-slate-400 font-code">Render Tick Time</div>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border-l-2 border-l-cyanNeon">
+                    <div class="text-2xl font-display text-cyanNeon tracking-wider" id="stat-entities">10,000+</div>
+                    <div class="text-xs text-slate-400 font-code">ECS Active Entities</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Showcase Section: First Person Runner -->
+    <section id="runner-showcase" class="py-24 relative z-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="text-xs font-code text-cyanNeon uppercase tracking-widest mb-2">// Featured Flagship Project</h2>
+            <h3 class="text-4xl md:text-5xl font-display tracking-wider text-white">FIRST PERSON RUNNER</h3>
+            <p class="text-slate-400 max-w-xl mx-auto text-sm mt-2">A high-velocity arcade obstacle-runner built on a proprietary low-level graphics pipeline.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <!-- Visual Card Left side -->
+            <div class="lg:col-span-7 glass-panel rounded-2xl p-6 relative overflow-hidden group shadow-2xl border border-slate-700/60">
+                <!-- Arcade HUD Header -->
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800 text-xs font-code">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                        <span class="ml-2 text-slate-400">ENGINE_RENDERER_VIEWPORT.GL</span>
+                    </div>
+                    <span class="text-cyanNeon">CAMERA: FIRST_PERSON_CAM</span>
+                </div>
+
+                <!-- Low Poly / Runner Vector Graphic Preview -->
+                <div class="relative h-80 my-4 rounded-xl bg-nightDark overflow-hidden flex items-center justify-center border border-slate-800 scanline">
+                    <!-- Dynamic Synthwave Tunnel Render (SVG Animation) -->
+                    <svg class="w-full h-full absolute inset-0" viewBox="0 0 600 350" preserveAspectRatio="none">
+                        <!-- Perspective grid -->
+                        <g stroke="rgba(0, 217, 255, 0.25)" stroke-width="1.5">
+                            <line x1="0" y1="350" x2="300" y2="120" />
+                            <line x1="100" y1="350" x2="300" y2="120" />
+                            <line x1="200" y1="350" x2="300" y2="120" />
+                            <line x1="300" y1="350" x2="300" y2="120" />
+                            <line x1="400" y1="350" x2="300" y2="120" />
+                            <line x1="500" y1="350" x2="300" y2="120" />
+                            <line x1="600" y1="350" x2="300" y2="120" />
+                        </g>
+
+                        <!-- Horizontal moving grid lines -->
+                        <g stroke="rgba(255, 0, 110, 0.4)" stroke-width="1.5">
+                            <line x1="0" y1="320" x2="600" y2="320" />
+                            <line x1="50" y1="270" x2="550" y2="270" />
+                            <line x1="120" y1="210" x2="480" y2="210" />
+                            <line x1="180" y1="165" x2="420" y2="165" />
+                            <line x1="240" y1="135" x2="360" y2="135" />
+                        </g>
+
+                        <!-- Low poly Neon Horizon Sun -->
+                        <circle cx="300" cy="115" r="45" fill="url(#sunGlow)" />
+                        <defs>
+                            <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#ff006e" />
+                                <stop offset="100%" stop-color="#060919" stop-opacity="0" />
+                            </radialGradient>
+                        </defs>
+
+                        <!-- Runner Obstacle Wireframe Mesh -->
+                        <polygon points="270,220 330,220 340,260 260,260" fill="rgba(0,217,255,0.15)" stroke="#00d9ff" stroke-width="2" />
+                        <polygon points="180,260 220,260 210,310 160,310" fill="rgba(255,0,110,0.2)" stroke="#ff006e" stroke-width="2" />
+                        
+                        <!-- FPS Crosshair Overlay -->
+                        <circle cx="300" cy="175" r="8" stroke="#00d9ff" stroke-width="1.5" fill="none" />
+                        <line x1="300" y1="160" x2="300" y2="168" stroke="#00d9ff" stroke-width="1.5" />
+                        <line x1="300" y1="182" x2="300" y2="190" stroke="#00d9ff" stroke-width="1.5" />
+                        <line x1="285" y1="175" x2="293" y2="175" stroke="#00d9ff" stroke-width="1.5" />
+                        <line x1="307" y1="175" x2="315" y2="175" stroke="#00d9ff" stroke-width="1.5" />
+                    </svg>
+
+                    <!-- Realtime FPS overlay -->
+                    <div class="absolute top-4 left-4 bg-night/80 border border-slate-700 rounded px-2 py-1 font-code text-[11px] text-green-400">
+                        VELOCITY: 48.5 m/s
+                    </div>
+                    <div class="absolute bottom-4 right-4 bg-night/80 border border-slate-700 rounded px-2 py-1 font-code text-[11px] text-cyanNeon">
+                        AABB_COLLISION: ACTIVE
+                    </div>
+                </div>
+
+                <!-- Key Features list -->
+                <div class="grid grid-cols-3 gap-2 text-center text-xs font-code pt-2">
+                    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+                        <span class="text-cyanNeon font-bold block">Low-Poly Mesh</span>
+                        <span class="text-slate-400 text-[10px]">Procedural Gen</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+                        <span class="text-magentaNeon font-bold block">Dynamic Speed</span>
+                        <span class="text-slate-400 text-[10px]">Linear Ramp</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2 rounded border border-slate-800">
+                        <span class="text-purple-400 font-bold block">Spatial Audio</span>
+                        <span class="text-slate-400 text-[10px]">3D Sound Node</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Right Side -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+                    <h4 class="text-2xl font-display tracking-wider text-white mb-3">CORE ARCHITECTURE & SYSTEMS</h4>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                        First Person Runner is designed around continuous momentum mechanics. Built from the ground up in C++ with custom shaders to deliver buttery-smooth responsive gameplay.
+                    </p>
+
+                    <ul class="space-y-3 text-xs font-code text-slate-300">
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check text-cyanNeon"></i>
+                            <span>Custom OpenGL Shaders (Phong Lighting + Fog Horizon)</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check text-cyanNeon"></i>
+                            <span>Sweep-and-Prune AABB Collision Detection</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check text-cyanNeon"></i>
+                            <span>Modular Component Architecture for Obstacles</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check text-cyanNeon"></i>
+                            <span>High-performance Buffer Management & VBO Batching</span>
+                        </li>
+                    </ul>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <span class="text-xs font-code text-slate-400">ENGINE VERSION: <strong class="text-white">v2.4-Core</strong></span>
+                        <a href="#minigame" class="text-xs font-code text-magentaNeon hover:text-white transition-colors flex items-center gap-1">
+                            Launch Playable Minigame <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Engine Feature Module Viewer -->
+    <section id="engine-architecture" class="py-24 bg-nightDark/80 relative z-20 border-y border-slate-800/80 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-xs font-code text-cyanNeon uppercase tracking-widest mb-2">// Modular C++ Architecture</h2>
+                <h3 class="text-4xl md:text-5xl font-display tracking-wider text-white">ENGINE SUBSYSTEMS & CODE INSPECTOR</h3>
+                <p class="text-slate-400 max-w-xl mx-auto text-sm mt-2">Explore low-level C++ implementations alongside real-time visual gizmo previews.</p>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-8" id="engine-tabs">
+                <button onclick="switchTab('ecs')" id="tab-ecs" class="tab-btn px-4 py-2 rounded-lg font-code text-xs font-semibold bg-cyanNeon text-night shadow-neon-cyan transition-all">
+                    ECS System
+                </button>
+                <button onclick="switchTab('opengl')" id="tab-opengl" class="tab-btn px-4 py-2 rounded-lg font-code text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition-all">
+                    OpenGL Renderer
+                </button>
+                <button onclick="switchTab('physics')" id="tab-physics" class="tab-btn px-4 py-2 rounded-lg font-code text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition-all">
+                    Physics & Collision
+                </button>
+                <button onclick="switchTab('camera')" id="tab-camera" class="tab-btn px-4 py-2 rounded-lg font-code text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition-all">
+                    Camera & Frustum
+                </button>
+            </div>
+
+            <!-- Content Area: Split View Code Snippet vs Live Canvas Visualizer -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <!-- Left: C++ Code Viewer -->
+                <div class="lg:col-span-6 glass-panel rounded-xl p-5 border border-slate-800 font-code flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs text-slate-400">
+                            <span id="code-filename" class="text-cyanNeon font-bold"><i class="fa-regular fa-file-code"></i> ECS_Registry.hpp</span>
+                            <span>Language: C++17</span>
+                        </div>
+                        <pre class="text-xs text-slate-300 overflow-x-auto p-3 bg-night/80 rounded-lg leading-relaxed max-h-[360px]" id="code-block"></pre>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                        <span>Memory Overhead: <strong class="text-white">Zero Alloc per Frame</strong></span>
+                        <span class="text-slate-500">A.M Studios Engine Core</span>
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Canvas Gizmo Visualizer -->
+                <div class="lg:col-span-6 glass-panel rounded-xl p-5 border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs font-code">
+                        <span class="text-magentaNeon font-bold"><i class="fa-solid fa-microchip"></i> LIVE GIZMO VISUALIZER</span>
+                        <span class="text-slate-400" id="gizmo-title">Entity Hierarchy & Component Graph</span>
+                    </div>
+
+                    <!-- Canvas Container -->
+                    <div class="relative w-full h-[320px] bg-nightDark rounded-lg overflow-hidden border border-slate-800">
+                        <canvas id="gizmo-canvas" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <!-- Interactive Controls for Visualizer -->
+                    <div class="mt-4 flex items-center justify-between text-xs font-code">
+                        <div class="flex items-center gap-2">
+                            <button id="gizmo-toggle-btn" onclick="toggleGizmoAnimation()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-cyanNeon rounded border border-cyanNeon/30">
+                                Pause Motion
+                            </button>
+                        </div>
+                        <span class="text-slate-400 text-[11px]" id="gizmo-status">Interactive Vector Preview Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Embedded Interactive Minigame Section -->
+    <section id="minigame" class="py-24 relative z-20 px-4 max-w-6xl mx-auto">
+        <div class="text-center mb-10">
+            <h2 class="text-xs font-code text-magentaNeon uppercase tracking-widest mb-2">// Playable Demo</h2>
+            <h3 class="text-4xl md:text-5xl font-display tracking-wider text-white">ARCADE RUNNER MINI-GAME</h3>
+            <p class="text-slate-400 max-w-lg mx-auto text-sm mt-2">Experience a web-based Canvas 2.5D preview of First Person Runner logic! Use <strong class="text-cyanNeon">Arrow Keys / A-D</strong> or <strong class="text-cyanNeon">Spacebar</strong> to jump.</p>
+        </div>
+
+        <!-- Mini Game Container -->
+        <div class="glass-panel rounded-2xl p-4 md:p-6 border border-cyanNeon/30 shadow-neon-cyan max-w-4xl mx-auto">
+            <!-- Game Canvas Top Info HUD -->
+            <div class="flex items-center justify-between mb-3 px-2 font-code text-xs">
+                <div class="flex items-center gap-4">
+                    <div>SCORE: <span id="game-score" class="text-cyanNeon font-bold text-base">0000</span></div>
+                    <div>SPEED: <span id="game-speed" class="text-magentaNeon font-bold">1.0x</span></div>
+                </div>
+                <div class="text-slate-400 hidden sm:block">
+                    [LEFT/RIGHT] Avoid Obstacles | [SPACE/UP] Jump
+                </div>
+            </div>
+
+            <!-- Arcade Viewport Screen -->
+            <div class="relative w-full h-[360px] bg-nightDark rounded-xl overflow-hidden border-2 border-slate-800 shadow-inner">
+                <canvas id="game-canvas" class="w-full h-full block cursor-pointer"></canvas>
+
+                <!-- Overlay Start / Game Over Screen -->
+                <div id="game-overlay" class="absolute inset-0 bg-night/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-30">
+                    <div class="w-16 h-16 rounded-full bg-cyanNeon/10 border border-cyanNeon flex items-center justify-center text-cyanNeon text-2xl mb-4 shadow-neon-cyan">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                    <h4 class="text-3xl font-display tracking-wider text-white mb-2" id="overlay-title">FIRST PERSON RUNNER: DEMO</h4>
+                    <p class="text-slate-300 text-xs font-code mb-6 max-w-md" id="overlay-desc">Dodge neon wireframe obstacles and achieve high velocity. Test your reflexes!</p>
+                    <button onclick="startGame()" class="px-8 py-3 bg-gradient-to-r from-cyanNeon to-magentaNeon text-night font-bold font-code rounded-lg shadow-neon-cyan hover:scale-105 transition-transform">
+                        START RUN
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Touch Controls fallback -->
+            <div class="flex items-center justify-center gap-4 mt-4 sm:hidden">
+                <button ontouchstart="handleTouchLeft()" class="px-6 py-3 bg-slate-800 text-cyanNeon rounded-lg border border-slate-700 font-code active:bg-cyanNeon active:text-night">
+                    &larr; LEFT
+                </button>
+                <button ontouchstart="handleTouchJump()" class="px-6 py-3 bg-slate-800 text-magentaNeon rounded-lg border border-slate-700 font-code active:bg-magentaNeon active:text-night">
+                    JUMP
+                </button>
+                <button ontouchstart="handleTouchRight()" class="px-6 py-3 bg-slate-800 text-cyanNeon rounded-lg border border-slate-700 font-code active:bg-cyanNeon active:text-night">
+                    RIGHT &rarr;
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- About & Footer Section -->
+    <section id="about" class="py-16 bg-nightDark border-t border-slate-800 relative z-20 px-4">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 flex items-center justify-center bg-slate-900 border border-cyanNeon rounded-lg shadow-neon-cyan">
+                        <span class="font-display text-xl text-cyanNeon">AM</span>
+                    </div>
+                    <div>
+                        <h4 class="font-display text-2xl text-white">AHMED MAGDY</h4>
+                        <p class="text-xs font-code text-cyanNeon">Lead Game Engine Developer & Graphics Engineer</p>
+                    </div>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                    Specializing in high-performance C++ systems, OpenGL rendering architectures, real-time math, and interactive graphics. Passionate about constructing lean, highly responsive game mechanics from basic primitives.
+                </p>
+                <div class="flex items-center gap-4 font-code text-xs">
+                    <a href="https://github.com" target="_blank" class="px-4 py-2 glass-panel text-slate-300 hover:text-cyanNeon rounded-lg border border-slate-800 hover:border-cyanNeon/50 transition-all flex items-center gap-2">
+                        <i class="fa-brands fa-github text-sm"></i> GitHub
+                    </a>
+                    <a href="https://linkedin.com" target="_blank" class="px-4 py-2 glass-panel text-slate-300 hover:text-cyanNeon rounded-lg border border-slate-800 hover:border-cyanNeon/50 transition-all flex items-center gap-2">
+                        <i class="fa-brands fa-linkedin text-sm"></i> LinkedIn
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact Box -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+                <h5 class="text-xl font-display text-white mb-2">GET IN TOUCH</h5>
+                <p class="text-xs text-slate-400 mb-4">Open for collaboration on custom game engines, graphics research, and project development.</p>
+                
+                <div class="space-y-3 font-code text-xs">
+                    <div class="flex items-center gap-3 text-slate-300">
+                        <i class="fa-solid fa-envelope text-cyanNeon"></i>
+                        <span>ahmed.magdy.studios@gmail.com</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-300">
+                        <i class="fa-solid fa-location-dot text-magentaNeon"></i>
+                        <span>Alexandria, Egypt</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto mt-12 pt-6 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-code">
+            <div>&copy; 2026 A.M Studios (Ahmed Magdy). All Rights Reserved.</div>
+            <div class="mt-2 sm:mt-0">Built with Custom Canvas 2D/3D & Tailwind CSS</div>
+        </div>
+    </section>
+
+    <script>
+        /* ----------------------------------------------------
+         * C++ CODE SNIPPETS DATA FOR MODULE INSPECTOR
+         * ---------------------------------------------------- */
+        const codeSnippets = {
+            ecs: `// ECS Registry Implementation
+#include <unordered_map>
+#include <vector>
+#include <memory>
+
+class Registry {
+public:
+    template<typename T, typename... Args>
+    T& assign(Entity entity, Args&&... args) {
+        auto storage = get_or_create_storage<T>();
+        return storage->emplace(entity, std::forward<Args>(args)...);
+    }
+
+    template<typename... Components>
+    void view(auto&& func) {
+        // Cache-friendly packed array iteration
+        for (Entity entity : m_activeEntities) {
+            if (has_all<Components...>(entity)) {
+                func(entity, get<Components>(entity)...);
+            }
+        }
+    }
+};`,
+            opengl: `// Custom OpenGL Pipeline Shader Setup
+#include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
+
+void RenderPipeline::DrawMesh(const Mesh& mesh, const Shader& shader) {
+    shader.use();
+    shader.setMat4("u_ViewProjection", m_Camera.GetViewProjectionMatrix());
+    shader.setVec3("u_LightPos", m_SunLight.Position);
+    
+    glBindVertexArray(mesh.getVAO());
+    glDrawElements(GL_TRIANGLES, mesh.getIndexCount(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}`,
+            physics: `// AABB Collision Detection & Resolution
+struct AABB {
+    glm::vec3 minBound;
+    glm::vec3 maxBound;
+
+    bool TestOverlap(const AABB& other) const {
+        return (minBound.x <= other.maxBound.x && maxBound.x >= other.minBound.x) &&
+               (minBound.y <= other.maxBound.y && maxBound.y >= other.minBound.y) &&
+               (minBound.z <= other.maxBound.z && maxBound.z >= other.minBound.z);
+    }
+};`,
+            camera: `// First Person Perspective Camera Matrix
+#include <glm/gtc/matrix_transform.hpp>
+
+glm::mat4 Camera::GetViewMatrix() const {
+    return glm::lookAt(m_Position, m_Position + m_Front, m_Up);
+}
+
+void Camera::ProcessMouseMovement(float xoffset, float yoffset) {
+    m_Yaw   += xoffset * m_Sensitivity;
+    m_Pitch += yoffset * m_Sensitivity;
+    m_Pitch  = glm::clamp(m_Pitch, -89.0f, 89.0f);
+    UpdateCameraVectors();
+}`
+        };
+
+        /* ----------------------------------------------------
+         * TAB SWITCHING LOGIC FOR ENGINE MODULES
+         * ---------------------------------------------------- */
+        let activeTab = 'ecs';
+        function switchTab(tabKey) {
+            activeTab = tabKey;
+            
+            // Update Tab Buttons UI
+            const tabs = ['ecs', 'opengl', 'physics', 'camera'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabKey) {
+                    btn.className = "tab-btn px-4 py-2 rounded-lg font-code text-xs font-semibold bg-cyanNeon text-night shadow-neon-cyan transition-all";
+                } else {
+                    btn.className = "tab-btn px-4 py-2 rounded-lg font-code text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition-all";
+                }
+            });
+
+            // Update Code Content
+            document.getElementById('code-block').textContent = codeSnippets[tabKey];
+
+            // Update Titles
+            const titleMap = {
+                ecs: "Entity Component Hierarchy Graph",
+                opengl: "Render Pipeline & Draw Call Stack",
+                physics: "Bounding Box Vector Gizmo",
+                camera: "Perspective Frustum Projection"
+            };
+            const fileMap = {
+                ecs: "ECS_Registry.hpp",
+                opengl: "OpenGL_Renderer.cpp",
+                physics: "Physics_AABB.hpp",
+                camera: "Camera3D.cpp"
+            };
+            document.getElementById('gizmo-title').textContent = titleMap[tabKey];
+            document.getElementById('code-filename').innerHTML = `<i class="fa-regular fa-file-code"></i> ${fileMap[tabKey]}`;
+        }
+
+        /* Initial Code Setup */
+        document.getElementById('code-block').textContent = codeSnippets['ecs'];
+
+        /* ----------------------------------------------------
+         * HERO CANVAS: DYNAMIC 3D WIREFRAME MESH / PARTICLES
+         * ---------------------------------------------------- */
+        const heroCanvas = document.getElementById('hero-canvas');
+        const heroCtx = heroCanvas.getContext('2d');
+
+        let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+
+        window.addEventListener('mousemove', (e) => {
+            const rect = heroCanvas.getBoundingClientRect();
+            mouse.targetX = (e.clientX - rect.left - heroCanvas.width / 2) * 0.001;
+            mouse.targetY = (e.clientY - rect.top - heroCanvas.height / 2) * 0.001;
+        });
+
+        function resizeHeroCanvas() {
+            heroCanvas.width = heroCanvas.offsetWidth;
+            heroCanvas.height = heroCanvas.offsetHeight;
+        }
+        window.addEventListener('resize', resizeHeroCanvas);
+        resizeHeroCanvas();
+
+        // Wireframe Grid points
+        let gridAngle = 0;
+
+        function drawHeroCanvas() {
+            heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+
+            // Ease mouse
+            mouse.x += (mouse.targetX - mouse.x) * 0.05;
+            mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+            gridAngle += 0.005;
+
+            const cx = heroCanvas.width / 2;
+            const cy = heroCanvas.height / 2 + 50;
+
+            const cols = 24;
+            const rows = 18;
+            const spacing = 45;
+
+            heroCtx.save();
+            heroCtx.lineWidth = 1;
+
+            // Draw 3D wireframe perspective mesh
+            for (let r = 0; r < rows; r++) {
+                heroCtx.beginPath();
+                for (let c = 0; c <= cols; c++) {
+                    const x = (c - cols / 2) * spacing;
+                    const z = (r * spacing) + (gridAngle * 100) % spacing;
+                    const y = Math.sin(c * 0.4 + gridAngle * 2) * 15 + Math.cos(r * 0.3) * 10;
+
+                    // Perspective Projection
+                    const fov = 300;
+                    const rotX = mouse.y + 0.4;
+                    const rotY = mouse.x;
+
+                    // Simple 3D Transform
+                    let yRot = y * Math.cos(rotX) - z * Math.sin(rotX);
+                    let zRot = y * Math.sin(rotX) + z * Math.cos(rotX);
+
+                    let xRot = x * Math.cos(rotY) + zRot * Math.sin(rotY);
+                    let finalZ = -x * Math.sin(rotY) + zRot * Math.cos(rotY) + 400;
+
+                    const projX = cx + (xRot * fov) / finalZ;
+                    const projY = cy + (yRot * fov) / finalZ;
+
+                    if (c === 0) heroCtx.moveTo(projX, projY);
+                    else heroCtx.lineTo(projX, projY);
+                }
+
+                const alpha = Math.max(0, 1 - r / rows);
+                heroCtx.strokeStyle = `rgba(0, 217, 255, ${alpha * 0.35})`;
+                heroCtx.stroke();
+            }
+
+            // Draw floating glowing particles
+            const particleCount = 40;
+            const time = Date.now() * 0.001;
+            for (let i = 0; i < particleCount; i++) {
+                const px = (Math.sin(i * 99 + time) * 0.5 + 0.5) * heroCanvas.width;
+                const py = (Math.cos(i * 33 + time) * 0.5 + 0.5) * heroCanvas.height;
+                const radius = Math.sin(i + time * 2) * 2 + 2;
+
+                heroCtx.fillStyle = (i % 2 === 0) ? 'rgba(0, 217, 255, 0.6)' : 'rgba(255, 0, 110, 0.6)';
+                heroCtx.beginPath();
+                heroCtx.arc(px, py, Math.max(0.5, radius), 0, Math.PI * 2);
+                heroCtx.fill();
+            }
+
+            heroCtx.restore();
+            requestAnimationFrame(drawHeroCanvas);
+        }
+        drawHeroCanvas();
+
+        /* ----------------------------------------------------
+         * GIZMO CANVAS: REALTIME ENGINE SUBSYSTEM PREVIEW
+         * ---------------------------------------------------- */
+        const gizmoCanvas = document.getElementById('gizmo-canvas');
+        const gizmoCtx = gizmoCanvas.getContext('2d');
+        let gizmoAnimating = true;
+
+        function toggleGizmoAnimation() {
+            gizmoAnimating = !gizmoAnimating;
+            document.getElementById('gizmo-toggle-btn').textContent = gizmoAnimating ? "Pause Motion" : "Resume Motion";
+        }
+
+        function resizeGizmoCanvas() {
+            gizmoCanvas.width = gizmoCanvas.offsetWidth;
+            gizmoCanvas.height = gizmoCanvas.offsetHeight;
+        }
+        window.addEventListener('resize', resizeGizmoCanvas);
+        resizeGizmoCanvas();
+
+        let gizmoTick = 0;
+        function renderGizmo() {
+            if (gizmoAnimating) gizmoTick += 0.02;
+
+            const w = gizmoCanvas.width;
+            const h = gizmoCanvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            gizmoCtx.clearRect(0, 0, w, h);
+
+            // Dark grid background
+            gizmoCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            gizmoCtx.lineWidth = 1;
+            for (let x = 0; x < w; x += 30) {
+                gizmoCtx.beginPath(); gizmoCtx.moveTo(x, 0); gizmoCtx.lineTo(x, h); gizmoCtx.stroke();
+            }
+            for (let y = 0; y < h; y += 30) {
+                gizmoCtx.beginPath(); gizmoCtx.moveTo(0, y); gizmoCtx.lineTo(w, y); gizmoCtx.stroke();
+            }
+
+            if (activeTab === 'ecs') {
+                // Render Entity Tree Graph Nodes
+                const nodes = [
+                    { x: cx, y: cy - 70, label: "Root Entity (1001)", color: "#00d9ff" },
+                    { x: cx - 110, y: cy + 30, label: "MeshComponent", color: "#ff006e" },
+                    { x: cx, y: cy + 30, label: "TransformComponent", color: "#7928ca" },
+                    { x: cx + 110, y: cy + 30, label: "RigidBodyComponent", color: "#00d9ff" }
+                ];
+
+                // Lines
+                gizmoCtx.strokeStyle = 'rgba(0, 217, 255, 0.4)';
+                gizmoCtx.lineWidth = 2;
+                for (let i = 1; i < nodes.length; i++) {
+                    gizmoCtx.beginPath();
+                    gizmoCtx.moveTo(nodes[0].x, nodes[0].y);
+                    gizmoCtx.lineTo(nodes[i].x, nodes[i].y);
+                    gizmoCtx.stroke();
+                }
+
+                // Draw Node circles
+                nodes.forEach((n, idx) => {
+                    const pulse = Math.sin(gizmoTick * 3 + idx) * 3;
+                    gizmoCtx.fillStyle = n.color;
+                    gizmoCtx.beginPath();
+                    gizmoCtx.arc(n.x, n.y, 14 + pulse, 0, Math.PI * 2);
+                    gizmoCtx.fill();
+
+                    gizmoCtx.fillStyle = '#ffffff';
+                    gizmoCtx.font = '10px Fira Code';
+                    gizmoCtx.textAlign = 'center';
+                    gizmoCtx.fillText(n.label, n.x, n.y + 30);
+                });
+
+            } else if (activeTab === 'opengl') {
+                // Render Pipeline Render Pass Diagram
+                gizmoCtx.strokeStyle = '#00d9ff';
+                gizmoCtx.lineWidth = 2;
+                
+                const frameX = cx + Math.cos(gizmoTick) * 30;
+                const frameY = cy + Math.sin(gizmoTick) * 20;
+
+                // Rotating 3D Wireframe Cube Viewport Gizmo
+                gizmoCtx.strokeRect(frameX - 50, frameY - 40, 100, 80);
+                gizmoCtx.strokeStyle = '#ff006e';
+                gizmoCtx.strokeRect(frameX - 30, frameY - 20, 100, 80);
+
+                gizmoCtx.fillStyle = '#00d9ff';
+                gizmoCtx.font = '11px Fira Code';
+                gizmoCtx.textAlign = 'center';
+                gizmoCtx.fillText("VAO BATCH DRAW CALL #042", cx, h - 30);
+
+            } else if (activeTab === 'physics') {
+                // AABB Bounding Box Collision Gizmo
+                const box1 = { x: cx - 60 + Math.sin(gizmoTick * 2) * 40, y: cy - 30, w: 70, h: 60 };
+                const box2 = { x: cx + 10, y: cy - 20, w: 80, h: 70 };
+
+                // Collision Test
+                const isOverlapping = (box1.x < box2.x + box2.w && box1.x + box1.w > box2.x &&
+                                       box1.y < box2.y + box2.h && box1.y + box1.h > box2.y);
+
+                gizmoCtx.lineWidth = 2;
+                gizmoCtx.strokeStyle = isOverlapping ? '#ff006e' : '#00d9ff';
+                gizmoCtx.fillStyle = isOverlapping ? 'rgba(255, 0, 110, 0.2)' : 'rgba(0, 217, 255, 0.1)';
+                
+                gizmoCtx.fillRect(box1.x, box1.y, box1.w, box1.h);
+                gizmoCtx.strokeRect(box1.x, box1.y, box1.w, box1.h);
+
+                gizmoCtx.strokeStyle = '#00d9ff';
+                gizmoCtx.fillStyle = 'rgba(0, 217, 255, 0.1)';
+                gizmoCtx.fillRect(box2.x, box2.y, box2.w, box2.h);
+                gizmoCtx.strokeRect(box2.x, box2.y, box2.w, box2.h);
+
+                gizmoCtx.fillStyle = isOverlapping ? '#ff006e' : '#00d9ff';
+                gizmoCtx.font = '12px Fira Code';
+                gizmoCtx.textAlign = 'center';
+                gizmoCtx.fillText(isOverlapping ? "AABB OVERLAP DETECTED" : "NO COLLISION", cx, h - 25);
+
+            } else if (activeTab === 'camera') {
+                // Perspective Frustum Lines
+                gizmoCtx.strokeStyle = '#00d9ff';
+                gizmoCtx.lineWidth = 2;
+
+                const camX = cx - 120;
+                const camY = cy;
+
+                // Frustum cone
+                gizmoCtx.beginPath();
+                gizmoCtx.moveTo(camX, camY);
+                gizmoCtx.lineTo(cx + 100, cy - 70);
+                gizmoCtx.lineTo(cx + 100, cy + 70);
+                gizmoCtx.closePath();
+                gizmoCtx.stroke();
+
+                // Near & Far Plane
+                gizmoCtx.strokeStyle = '#ff006e';
+                gizmoCtx.beginPath();
+                gizmoCtx.moveTo(cx - 30, cy - 25);
+                gizmoCtx.lineTo(cx - 30, cy + 25);
+                gizmoCtx.stroke();
+
+                gizmoCtx.beginPath();
+                gizmoCtx.moveTo(cx + 70, cy - 60);
+                gizmoCtx.lineTo(cx + 70, cy + 60);
+                gizmoCtx.stroke();
+
+                // Camera Icon
+                gizmoCtx.fillStyle = '#00d9ff';
+                gizmoCtx.fillRect(camX - 15, camY - 10, 20, 20);
+
+                gizmoCtx.font = '10px Fira Code';
+                gizmoCtx.textAlign = 'center';
+                gizmoCtx.fillText("NEAR PLANE", cx - 30, cy + 45);
+                gizmoCtx.fillText("FAR PLANE", cx + 70, cy + 80);
+            }
+
+            requestAnimationFrame(renderGizmo);
+        }
+        renderGizmo();
+
+        /* ----------------------------------------------------
+         * EMBEDDED ARCADE RUNNER MINI-GAME
+         * ---------------------------------------------------- */
+        const gameCanvas = document.getElementById('game-canvas');
+        const gameCtx = gameCanvas.getContext('2d');
+
+        let gameRunning = false;
+        let score = 0;
+        let speed = 1.0;
+        let playerX = 1; // 0: Left, 1: Center, 2: Right
+        let playerY = 0; // Jump offset
+        let isJumping = false;
+        let jumpVelocity = 0;
+        let obstacles = [];
+        let gameTick = 0;
+
+        function resizeGameCanvas() {
+            gameCanvas.width = gameCanvas.offsetWidth;
+            gameCanvas.height = gameCanvas.offsetHeight;
+        }
+        window.addEventListener('resize', resizeGameCanvas);
+        resizeGameCanvas();
+
+        function startGame() {
+            document.getElementById('game-overlay').classList.add('hidden');
+            gameRunning = true;
+            score = 0;
+            speed = 1.0;
+            playerX = 1;
+            playerY = 0;
+            isJumping = false;
+            obstacles = [];
+            gameLoop();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('overlay-title').textContent = "SYSTEM CRASH: COLLISION";
+            document.getElementById('overlay-desc').textContent = `Final Distance Achieved: ${Math.floor(score)}m at Speed ${speed.toFixed(1)}x`;
+            document.getElementById('game-overlay').classList.remove('hidden');
+        }
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                if (playerX > 0) playerX--;
+            } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                if (playerX < 2) playerX++;
+            } else if ((e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') && !isJumping) {
+                isJumping = true;
+                jumpVelocity = 12;
+            }
+        });
+
+        // Mobile Touch Handlers
+        function handleTouchLeft() { if (gameRunning && playerX > 0) playerX--; }
+        function handleTouchRight() { if (gameRunning && playerX < 2) playerX++; }
+        function handleTouchJump() { if (gameRunning && !isJumping) { isJumping = true; jumpVelocity = 12; } }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            gameTick++;
+            score += 0.2 * speed;
+            speed += 0.0003;
+
+            document.getElementById('game-score').textContent = Math.floor(score).toString().padStart(4, '0');
+            document.getElementById('game-speed').textContent = speed.toFixed(1) + 'x';
+
+            const w = gameCanvas.width;
+            const h = gameCanvas.height;
+
+            gameCtx.clearRect(0, 0, w, h);
+
+            // Render Pseudo 3D Tunnel Grid
+            const horizonY = 100;
+            const laneWidths = [w * 0.2, w * 0.5, w * 0.8]; // Target screen X for 3 lanes
+
+            // Grid floor
+            gameCtx.strokeStyle = 'rgba(0, 217, 255, 0.3)';
+            gameCtx.lineWidth = 1.5;
+
+            // Perspective lane dividers
+            [w * 0.35, w * 0.5, w * 0.65].forEach((lx) => {
+                gameCtx.beginPath();
+                gameCtx.moveTo(w / 2, horizonY);
+                gameCtx.lineTo(lx < w * 0.5 ? 0 : (lx === w * 0.5 ? w / 2 : w), h);
+                gameCtx.stroke();
+            });
+
+            // Horizon Glow
+            const horizonGlow = gameCtx.createLinearGradient(0, horizonY - 40, 0, horizonY + 20);
+            horizonGlow.addColorStop(0, 'rgba(255, 0, 110, 0.4)');
+            horizonGlow.addColorStop(1, 'transparent');
+            gameCtx.fillStyle = horizonGlow;
+            gameCtx.fillRect(0, horizonY - 40, w, 60);
+
+            // Spawn Obstacles
+            if (gameTick % Math.max(25, Math.floor(60 / speed)) === 0) {
+                obstacles.push({
+                    lane: Math.floor(Math.random() * 3),
+                    z: 1.0 // 1.0 = Far distance, 0.0 = Near player
+                });
+            }
+
+            // Update Jump Physics
+            if (isJumping) {
+                playerY += jumpVelocity;
+                jumpVelocity -= 0.8; // Gravity
+                if (playerY <= 0) {
+                    playerY = 0;
+                    isJumping = false;
+                }
+            }
+
+            // Render and Move Obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                obs.z -= 0.02 * speed;
+
+                // Calculate screen position from Z depth
+                const scale = 1 - obs.z;
+                const obsY = horizonY + scale * (h - horizonY - 40);
+                const laneX = laneWidths[obs.lane];
+                const obsX = w / 2 + (laneX - w / 2) * scale;
+                const obsSize = Math.max(10, scale * 50);
+
+                // Draw Neon Obstacle Cube
+                gameCtx.fillStyle = 'rgba(255, 0, 110, 0.8)';
+                gameCtx.strokeStyle = '#00d9ff';
+                gameCtx.lineWidth = 2;
+                gameCtx.fillRect(obsX - obsSize / 2, obsY - obsSize, obsSize, obsSize);
+                gameCtx.strokeRect(obsX - obsSize / 2, obsY - obsSize, obsSize, obsSize);
+
+                // Collision Check
+                if (obs.z < 0.15 && obs.z > 0.02) {
+                    if (obs.lane === playerX && playerY < 25) {
+                        gameOver();
+                        return;
+                    }
+                }
+
+                // Remove offscreen
+                if (obs.z <= 0) {
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            // Render First Person / Runner Player Crosshair / Box Indicator
+            const targetPlayerX = laneWidths[playerX];
+            const pSize = 40;
+            const pY = h - 60 - playerY;
+
+            // Player Glow Shadow
+            gameCtx.fillStyle = 'rgba(0, 217, 255, 0.3)';
+            gameCtx.beginPath();
+            gameCtx.ellipse(targetPlayerX, h - 35, pSize * 0.8, 10, 0, 0, Math.PI * 2);
+            gameCtx.fill();
+
+            // Player Wireframe Vehicle
+            gameCtx.fillStyle = '#00d9ff';
+            gameCtx.strokeStyle = '#ffffff';
+            gameCtx.lineWidth = 2;
+            gameCtx.beginPath();
+            gameCtx.moveTo(targetPlayerX - pSize / 2, pY);
+            gameCtx.lineTo(targetPlayerX, pY - pSize * 0.6);
+            gameCtx.lineTo(targetPlayerX + pSize / 2, pY);
+            gameCtx.lineTo(targetPlayerX, pY + pSize * 0.3);
+            gameCtx.closePath();
+            gameCtx.fill();
+            gameCtx.stroke();
+
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
